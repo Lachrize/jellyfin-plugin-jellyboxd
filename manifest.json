@@ -13,7 +13,7 @@
         "changelog": "Two-way sync via plugin pull (works for LAN-only servers). One-click pairing: the plugin links/creates your Jellyboxd account and gives you a login link — no second account. Per-user token + Jellyfin username config.",
         "targetAbi": "10.11.0.0",
         "sourceUrl": "https://github.com/Lachrize/jellyfin-plugin-jellyboxd/raw/main/dist/jellyboxd_1.0.1.0.zip",
-        "checksum": "dc13934cbcacace57dd09577cc57b120",
+        "checksum": "431baa633381bf25fa7d3c61c7a2fdbe",
         "timestamp": "2026-06-09T12:20:32.0000000Z"
       }
     ]

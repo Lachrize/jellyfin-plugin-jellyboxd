@@ -14,7 +14,7 @@ namespace Jellyfin.Plugin.Jellyboxd;
 /// </summary>
 public sealed class JellyboxdLinkService : IHostedService, IDisposable
 {
-    private static readonly TimeSpan Interval = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan Interval = TimeSpan.FromSeconds(60);
 
     private readonly IUserManager _userManager;
     private readonly IServerApplicationHost _appHost;
@@ -122,13 +122,28 @@ public sealed class JellyboxdLinkService : IHostedService, IDisposable
                 Username = user.Username,
             };
             var res = await _client.LinkAsync(config, req).ConfigureAwait(false);
+            if (res is null)
+            {
+                return;
+            }
 
-            if (res?.Mode == "bootstrap" && !string.IsNullOrEmpty(res.Token))
+            var changed = false;
+            if (res.Mode == "bootstrap" && !string.IsNullOrEmpty(res.Token))
             {
                 config.SyncKey = res.Token;
-                config.ClaimUrl = res.ClaimUrl ?? string.Empty;
+                changed = true;
+                _logger.LogInformation("[Jellyboxd] Paired with Jellyboxd.");
+            }
+
+            if (!string.IsNullOrEmpty(res.ClaimUrl) && config.ClaimUrl != res.ClaimUrl)
+            {
+                config.ClaimUrl = res.ClaimUrl;
+                changed = true;
+            }
+
+            if (changed)
+            {
                 plugin.SaveConfiguration();
-                _logger.LogInformation("[Jellyboxd] Paired. Open the claim link from the plugin config to log into Jellyboxd.");
             }
         }
         catch (Exception ex)
