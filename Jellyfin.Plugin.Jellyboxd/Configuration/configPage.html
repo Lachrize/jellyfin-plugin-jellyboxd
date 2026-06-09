@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Jellyboxd Sync</title>
+</head>
+<body>
+<div id="JellyboxdConfigPage"
+     data-role="page"
+     class="page type-interior pluginConfigurationPage"
+     data-require="emby-input,emby-button,emby-checkbox">
+    <div data-role="content">
+        <div class="content-primary">
+            <form id="JellyboxdConfigForm">
+                <div class="sectionTitleContainer flex align-items-center">
+                    <h2 class="sectionTitle">Jellyboxd Sync</h2>
+                </div>
+                <div class="fieldDescription">
+                    Two-way sync of watched, rating and favourite with your Jellyboxd app.
+                </div>
+
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="JellyboxdUrl">Jellyboxd URL</label>
+                    <input id="JellyboxdUrl" name="JellyboxdUrl" type="url" is="emby-input"
+                           placeholder="http://localhost:3000" />
+                    <div class="fieldDescription">Base URL of the Jellyboxd app, reachable from this server.</div>
+                </div>
+
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="SyncKey">Your Jellyboxd sync token</label>
+                    <input id="SyncKey" name="SyncKey" type="text" is="emby-input" autocomplete="off" />
+                    <div class="fieldDescription">Generate it in Jellyboxd → Settings → Jellyfin, then paste your personal token here.</div>
+                </div>
+
+                <label class="emby-checkbox-label">
+                    <input id="MoviesOnly" name="MoviesOnly" type="checkbox" is="emby-checkbox" />
+                    <span>Movies only (otherwise: movies + series; seasons/episodes sync "watched")</span>
+                </label>
+
+                <br />
+                <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                    <span>Save</span>
+                </button>
+                <button is="emby-button" type="button" id="JellyboxdTestButton" class="raised block emby-button">
+                    <span>Test connection</span>
+                </button>
+                <div id="JellyboxdTestResult" class="fieldDescription" style="margin-top:0.5em;"></div>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var JellyboxdConfig = { pluginUniqueId: 'd986b486-5085-4742-88bb-3641b0150bad' };
+
+        document.querySelector('#JellyboxdConfigPage').addEventListener('pageshow', function () {
+            Dashboard.showLoadingMsg();
+            ApiClient.getPluginConfiguration(JellyboxdConfig.pluginUniqueId).then(function (config) {
+                document.querySelector('#JellyboxdUrl').value = config.JellyboxdUrl || '';
+                document.querySelector('#SyncKey').value = config.SyncKey || '';
+                document.querySelector('#MoviesOnly').checked = config.MoviesOnly !== false;
+                Dashboard.hideLoadingMsg();
+            });
+        });
+
+        document.querySelector('#JellyboxdConfigForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            Dashboard.showLoadingMsg();
+            ApiClient.getPluginConfiguration(JellyboxdConfig.pluginUniqueId).then(function (config) {
+                config.JellyboxdUrl = document.querySelector('#JellyboxdUrl').value;
+                config.SyncKey = document.querySelector('#SyncKey').value;
+                config.MoviesOnly = document.querySelector('#MoviesOnly').checked;
+                ApiClient.updatePluginConfiguration(JellyboxdConfig.pluginUniqueId, config).then(function (result) {
+                    Dashboard.processPluginConfigurationUpdateResult(result);
+                });
+            });
+            return false;
+        });
+
+        document.querySelector('#JellyboxdTestButton').addEventListener('click', function () {
+            var url = document.querySelector('#JellyboxdUrl').value.replace(/\/+$/, '') + '/api/sync/event';
+            var key = document.querySelector('#SyncKey').value;
+            var resultEl = document.querySelector('#JellyboxdTestResult');
+            resultEl.textContent = 'Testing…';
+            fetch(url, { method: 'GET', headers: { 'Authorization': 'Bearer ' + key } })
+                .then(function (r) {
+                    resultEl.textContent = r.ok
+                        ? '✓ Connected to Jellyboxd.'
+                        : '✗ Jellyboxd responded ' + r.status + ' (check URL / sync key).';
+                })
+                .catch(function () {
+                    resultEl.textContent = '✗ Could not reach Jellyboxd at that URL.';
+                });
+        });
+    </script>
+</div>
+</body>
+</html>

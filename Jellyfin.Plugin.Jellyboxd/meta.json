@@ -1,0 +1,14 @@
+{
+  "category": "Sync",
+  "changelog": "Initial release — Jellyfin -> Jellyboxd realtime sync for movies (played, rating, favourite).",
+  "description": "Two-way sync of watched, rating and favourite (and reviews) with the Jellyboxd app.",
+  "guid": "d986b486-5085-4742-88bb-3641b0150bad",
+  "name": "Jellyboxd Sync",
+  "overview": "Keep watched / rating / favourite in sync with Jellyboxd.",
+  "owner": "matthieu",
+  "targetAbi": "10.11.0.0",
+  "framework": "net9.0",
+  "version": "1.0.0.0",
+  "status": "Active",
+  "autoUpdate": false
+}
