@@ -25,6 +25,12 @@ public class PluginConfiguration : BasePluginConfiguration
     public string JellyfinUsername { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the one-time link to open/log into Jellyboxd (filled
+    /// automatically after pairing). Read-only for the user.
+    /// </summary>
+    public string ClaimUrl { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets or sets a value indicating whether to restrict sync to movies. When
     /// false (default), movies + whole series sync watched/rating/favourite and
     /// seasons/episodes sync "watched".

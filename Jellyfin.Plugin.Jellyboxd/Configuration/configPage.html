@@ -38,6 +38,12 @@
                     <div class="fieldDescription">The Jellyfin account to sync (only this user's activity is synced both ways).</div>
                 </div>
 
+                <div class="inputContainer" id="JellyboxdClaimContainer" style="display:none;">
+                    <label class="inputLabel inputLabelUnfocused">Open Jellyboxd</label>
+                    <div><a id="JellyboxdClaimLink" href="#" target="_blank" rel="noopener" style="color:#9b6fd6;font-weight:600;">Ouvrir mon compte Jellyboxd ➜</a></div>
+                    <div class="fieldDescription">Click to open and log into your linked Jellyboxd account — no password needed. (Appears after saving the URL + your Jellyfin username.)</div>
+                </div>
+
                 <label class="emby-checkbox-label">
                     <input id="MoviesOnly" name="MoviesOnly" type="checkbox" is="emby-checkbox" />
                     <span>Movies only (otherwise: movies + series; seasons/episodes sync "watched")</span>
@@ -65,6 +71,10 @@
                 document.querySelector('#SyncKey').value = config.SyncKey || '';
                 document.querySelector('#JellyfinUsername').value = config.JellyfinUsername || '';
                 document.querySelector('#MoviesOnly').checked = config.MoviesOnly !== false;
+                var claim = config.ClaimUrl || '';
+                var claimBox = document.querySelector('#JellyboxdClaimContainer');
+                var claimLink = document.querySelector('#JellyboxdClaimLink');
+                if (claim) { claimLink.href = claim; claimBox.style.display = ''; } else { claimBox.style.display = 'none'; }
                 Dashboard.hideLoadingMsg();
             });
         });

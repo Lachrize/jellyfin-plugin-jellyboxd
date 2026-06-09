@@ -8,7 +8,7 @@ set -euo pipefail
 DOTNET="${DOTNET:-/opt/homebrew/Cellar/dotnet@9/9.0.115/bin/dotnet}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 PROJ="$HERE/Jellyfin.Plugin.Jellyboxd"
-VERSION="1.0.0.0"
+VERSION="1.0.1.0"
 
 echo "==> Building (net9.0, Release)…"
 "$DOTNET" build -c Release "$PROJ/Jellyfin.Plugin.Jellyboxd.csproj" >/dev/null

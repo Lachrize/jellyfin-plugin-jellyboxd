@@ -144,3 +144,32 @@ public class AckEntry
     [JsonPropertyName("updatedAt")]
     public string UpdatedAt { get; set; } = string.Empty;
 }
+
+/// <summary>Body for POST /api/auth/jellyfin-link (pair/link an account).</summary>
+public class LinkRequest
+{
+    [JsonPropertyName("serverId")]
+    public string ServerId { get; set; } = string.Empty;
+
+    [JsonPropertyName("serverName")]
+    public string? ServerName { get; set; }
+
+    [JsonPropertyName("jellyfinUserId")]
+    public string JellyfinUserId { get; set; } = string.Empty;
+
+    [JsonPropertyName("username")]
+    public string Username { get; set; } = string.Empty;
+}
+
+/// <summary>Response from POST /api/auth/jellyfin-link.</summary>
+public class LinkResponse
+{
+    [JsonPropertyName("mode")]
+    public string? Mode { get; set; } // "linked" | "bootstrap" | "already_linked"
+
+    [JsonPropertyName("token")]
+    public string? Token { get; set; }
+
+    [JsonPropertyName("claimUrl")]
+    public string? ClaimUrl { get; set; }
+}

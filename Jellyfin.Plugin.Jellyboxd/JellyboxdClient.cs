@@ -63,6 +63,33 @@ public sealed class JellyboxdClient
     /// <returns>A task.</returns>
     public Task AckAsync(PluginConfiguration config, AckPayload payload) => PostAsync(config, "/api/sync/pending", payload);
 
+    /// <summary>Pair/link this server's user with a Jellyboxd account.</summary>
+    /// <param name="config">Plugin configuration.</param>
+    /// <param name="req">Link request.</param>
+    /// <returns>The link response, or null on failure.</returns>
+    public async Task<LinkResponse?> LinkAsync(PluginConfiguration config, LinkRequest req)
+    {
+        var url = config.JellyboxdUrl.TrimEnd('/') + "/api/auth/jellyfin-link";
+        var client = _httpClientFactory.CreateClient(NamedClient.Default);
+        using var request = new HttpRequestMessage(HttpMethod.Post, url);
+        if (!string.IsNullOrWhiteSpace(config.SyncKey))
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", config.SyncKey);
+        }
+
+        request.Content = new StringContent(JsonSerializer.Serialize(req), Encoding.UTF8, "application/json");
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        using var response = await client.SendAsync(request, cts.Token).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogWarning("[Jellyboxd] Link failed: {Status}", (int)response.StatusCode);
+            return null;
+        }
+
+        var stream = await response.Content.ReadAsStreamAsync(cts.Token).ConfigureAwait(false);
+        return await JsonSerializer.DeserializeAsync<LinkResponse>(stream, cancellationToken: cts.Token).ConfigureAwait(false);
+    }
+
     private async Task PostAsync<T>(PluginConfiguration config, string path, T payload)
     {
         var url = config.JellyboxdUrl.TrimEnd('/') + path;
