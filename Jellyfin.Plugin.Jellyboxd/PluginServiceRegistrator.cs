@@ -14,5 +14,6 @@ public class PluginServiceRegistrator : IPluginServiceRegistrator
     {
         serviceCollection.AddHostedService<JellyboxdSyncService>();
         serviceCollection.AddHostedService<WebInjectionService>();
+        serviceCollection.AddHostedService<OutboundPullService>();
     }
 }

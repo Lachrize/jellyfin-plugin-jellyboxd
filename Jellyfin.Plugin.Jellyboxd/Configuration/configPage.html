@@ -32,6 +32,12 @@
                     <div class="fieldDescription">Generate it in Jellyboxd → Settings → Jellyfin, then paste your personal token here.</div>
                 </div>
 
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="JellyfinUsername">Your Jellyfin username</label>
+                    <input id="JellyfinUsername" name="JellyfinUsername" type="text" is="emby-input" autocomplete="off" />
+                    <div class="fieldDescription">The Jellyfin account to sync (only this user's activity is synced both ways).</div>
+                </div>
+
                 <label class="emby-checkbox-label">
                     <input id="MoviesOnly" name="MoviesOnly" type="checkbox" is="emby-checkbox" />
                     <span>Movies only (otherwise: movies + series; seasons/episodes sync "watched")</span>
@@ -57,6 +63,7 @@
             ApiClient.getPluginConfiguration(JellyboxdConfig.pluginUniqueId).then(function (config) {
                 document.querySelector('#JellyboxdUrl').value = config.JellyboxdUrl || '';
                 document.querySelector('#SyncKey').value = config.SyncKey || '';
+                document.querySelector('#JellyfinUsername').value = config.JellyfinUsername || '';
                 document.querySelector('#MoviesOnly').checked = config.MoviesOnly !== false;
                 Dashboard.hideLoadingMsg();
             });
@@ -68,6 +75,7 @@
             ApiClient.getPluginConfiguration(JellyboxdConfig.pluginUniqueId).then(function (config) {
                 config.JellyboxdUrl = document.querySelector('#JellyboxdUrl').value;
                 config.SyncKey = document.querySelector('#SyncKey').value;
+                config.JellyfinUsername = document.querySelector('#JellyfinUsername').value;
                 config.MoviesOnly = document.querySelector('#MoviesOnly').checked;
                 ApiClient.updatePluginConfiguration(JellyboxdConfig.pluginUniqueId, config).then(function (result) {
                     Dashboard.processPluginConfigurationUpdateResult(result);

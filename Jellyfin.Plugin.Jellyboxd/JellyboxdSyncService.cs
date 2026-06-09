@@ -126,6 +126,13 @@ public sealed class JellyboxdSyncService : IHostedService
         var user = _userManager.GetUserById(e.UserId);
         if (user is null) return;
 
+        // Only sync the configured Jellyfin user's activity.
+        if (!string.IsNullOrWhiteSpace(config.JellyfinUsername)
+            && !string.Equals(user.Username, config.JellyfinUsername, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
         var payload = new SyncEventPayload
         {
             User = new SyncUser { Name = user.Username, JellyfinUserId = e.UserId.ToString("N") },

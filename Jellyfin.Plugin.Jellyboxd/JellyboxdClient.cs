@@ -37,6 +37,32 @@ public sealed class JellyboxdClient
     public Task SendEventAsync(PluginConfiguration config, SyncEventPayload payload) =>
         PostAsync(config, "/api/sync/event", payload);
 
+    /// <summary>Pull the outbound queue (changes to apply locally).</summary>
+    /// <param name="config">Plugin configuration.</param>
+    /// <returns>Pending changes, or null on failure.</returns>
+    public async Task<PendingResponse?> GetPendingAsync(PluginConfiguration config)
+    {
+        var url = config.JellyboxdUrl.TrimEnd('/') + "/api/sync/pending";
+        var client = _httpClientFactory.CreateClient(NamedClient.Default);
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", config.SyncKey);
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        using var response = await client.SendAsync(request, cts.Token).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        var stream = await response.Content.ReadAsStreamAsync(cts.Token).ConfigureAwait(false);
+        return await JsonSerializer.DeserializeAsync<PendingResponse>(stream, cancellationToken: cts.Token).ConfigureAwait(false);
+    }
+
+    /// <summary>Acknowledge applied changes so they leave the queue.</summary>
+    /// <param name="config">Plugin configuration.</param>
+    /// <param name="payload">Acked ids.</param>
+    /// <returns>A task.</returns>
+    public Task AckAsync(PluginConfiguration config, AckPayload payload) => PostAsync(config, "/api/sync/pending", payload);
+
     private async Task PostAsync<T>(PluginConfiguration config, string path, T payload)
     {
         var url = config.JellyboxdUrl.TrimEnd('/') + path;

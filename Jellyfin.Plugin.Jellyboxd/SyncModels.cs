@@ -86,3 +86,61 @@ public class SyncStateDto
     [JsonPropertyName("rating")]
     public double? Rating { get; set; }
 }
+
+/// <summary>Response from GET /api/sync/pending (outbound queue to apply locally).</summary>
+public class PendingResponse
+{
+    [JsonPropertyName("changes")]
+    public List<PendingChange> Changes { get; set; } = new();
+}
+
+/// <summary>A queued change from Jellyboxd to apply on this server.</summary>
+public class PendingChange
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+
+    [JsonPropertyName("updatedAt")]
+    public string UpdatedAt { get; set; } = string.Empty;
+
+    [JsonPropertyName("kind")]
+    public string Kind { get; set; } = string.Empty;
+
+    [JsonPropertyName("tmdb")]
+    public string? Tmdb { get; set; }
+
+    [JsonPropertyName("seriesTmdb")]
+    public string? SeriesTmdb { get; set; }
+
+    [JsonPropertyName("seasonNumber")]
+    public int? SeasonNumber { get; set; }
+
+    [JsonPropertyName("episodeNumber")]
+    public int? EpisodeNumber { get; set; }
+
+    [JsonPropertyName("played")]
+    public bool? Played { get; set; }
+
+    [JsonPropertyName("rating")]
+    public int? Rating { get; set; } // null = no change, 0 = clear, 1..10 = set
+
+    [JsonPropertyName("favorite")]
+    public bool? Favorite { get; set; }
+}
+
+/// <summary>Body for POST /api/sync/pending (ack applied changes).</summary>
+public class AckPayload
+{
+    [JsonPropertyName("acks")]
+    public List<AckEntry> Acks { get; set; } = new();
+}
+
+/// <summary>One acked change.</summary>
+public class AckEntry
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+
+    [JsonPropertyName("updatedAt")]
+    public string UpdatedAt { get; set; } = string.Empty;
+}

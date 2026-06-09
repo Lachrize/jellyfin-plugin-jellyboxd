@@ -13,10 +13,16 @@ public class PluginConfiguration : BasePluginConfiguration
     public string JellyboxdUrl { get; set; } = "http://localhost:3000";
 
     /// <summary>
-    /// Gets or sets the shared secret sent as a Bearer token to Jellyboxd.
-    /// Must match JELLYBOXD_SYNC_KEY in the Jellyboxd environment.
+    /// Gets or sets the user's personal Jellyboxd sync token (Bearer). Generated
+    /// in Jellyboxd → Paramètres → Jellyfin.
     /// </summary>
     public string SyncKey { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the Jellyfin username this token belongs to. Only this user's
+    /// activity is synced (push), and pulled changes are applied to this user.
+    /// </summary>
+    public string JellyfinUsername { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets a value indicating whether to restrict sync to movies. When
