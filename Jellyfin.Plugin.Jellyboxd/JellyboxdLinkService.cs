@@ -14,7 +14,7 @@ namespace Jellyfin.Plugin.Jellyboxd;
 /// </summary>
 public sealed class JellyboxdLinkService : IHostedService, IDisposable
 {
-    private static readonly TimeSpan Interval = TimeSpan.FromSeconds(60);
+    private static readonly TimeSpan Interval = TimeSpan.FromSeconds(20);
 
     private readonly IUserManager _userManager;
     private readonly IServerApplicationHost _appHost;
@@ -66,7 +66,7 @@ public sealed class JellyboxdLinkService : IHostedService, IDisposable
     {
         try
         {
-            await Task.Delay(TimeSpan.FromSeconds(12), token).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(6), token).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {

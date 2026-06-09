@@ -15,8 +15,12 @@
                 <div class="sectionTitleContainer flex align-items-center">
                     <h2 class="sectionTitle">Jellyboxd Sync</h2>
                 </div>
-                <div class="fieldDescription">
-                    Two-way sync of watched, rating and favourite with your Jellyboxd app.
+                <div class="fieldDescription" style="margin-bottom:1em;">
+                    <strong>Nouveau ?</strong> Renseigne juste l'<strong>URL Jellyboxd</strong> + ton
+                    <strong>identifiant Jellyfin</strong>, laisse le token <strong>vide</strong>, puis
+                    <strong>Save</strong>. Jellyboxd crée ton compte automatiquement : rafraîchis cette page après
+                    quelques secondes, le token se remplit tout seul et un lien « Ouvrir mon compte Jellyboxd »
+                    apparaît. Aucun 2ᵉ compte à créer.
                 </div>
 
                 <div class="inputContainer">
@@ -27,9 +31,9 @@
                 </div>
 
                 <div class="inputContainer">
-                    <label class="inputLabel inputLabelUnfocused" for="SyncKey">Your Jellyboxd sync token</label>
+                    <label class="inputLabel inputLabelUnfocused" for="SyncKey">Jellyboxd sync token (laisser vide si nouveau)</label>
                     <input id="SyncKey" name="SyncKey" type="text" is="emby-input" autocomplete="off" />
-                    <div class="fieldDescription">Generate it in Jellyboxd → Settings → Jellyfin, then paste your personal token here.</div>
+                    <div class="fieldDescription">Laisse vide pour créer ton compte automatiquement. Le plugin le remplira seul. (Avancé : si tu as déjà un compte Jellyboxd par e-mail, génère un token dans Paramètres → Jellyfin et colle-le ici pour relier ce compte.)</div>
                 </div>
 
                 <div class="inputContainer">
