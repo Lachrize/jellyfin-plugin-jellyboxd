@@ -17,7 +17,7 @@ namespace Jellyfin.Plugin.Jellyboxd;
 /// </summary>
 public sealed class OutboundPullService : IHostedService, IDisposable
 {
-    private static readonly TimeSpan Interval = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan Interval = TimeSpan.FromSeconds(3);
 
     private readonly IUserManager _userManager;
     private readonly IUserDataManager _userDataManager;
@@ -78,7 +78,7 @@ public sealed class OutboundPullService : IHostedService, IDisposable
     {
         try
         {
-            await Task.Delay(TimeSpan.FromSeconds(10), token).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(2), token).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
@@ -108,21 +108,13 @@ public sealed class OutboundPullService : IHostedService, IDisposable
         var config = Plugin.Instance?.Configuration;
         if (config is null
             || string.IsNullOrWhiteSpace(config.SyncKey)
-            || string.IsNullOrWhiteSpace(config.JellyboxdUrl)
-            || string.IsNullOrWhiteSpace(config.JellyfinUsername))
+            || string.IsNullOrWhiteSpace(config.JellyboxdUrl))
         {
             return;
         }
 
         try
         {
-            var user = _userManager.GetUserByName(config.JellyfinUsername);
-            if (user is null)
-            {
-                _logger.LogWarning("[Jellyboxd] Configured Jellyfin user '{User}' not found.", config.JellyfinUsername);
-                return;
-            }
-
             var pending = await _client.GetPendingAsync(config).ConfigureAwait(false);
             if (pending?.Changes is null || pending.Changes.Count == 0)
             {
@@ -134,14 +126,31 @@ public sealed class OutboundPullService : IHostedService, IDisposable
             {
                 try
                 {
-                    ApplyChange(user, change);
+                    // Multi-user: each change names the Jellyfin user to apply it to.
+                    // Prefer GetUserByName (returns a fully-loaded entity that
+                    // SaveUserData persists correctly); fall back to id.
+                    User? user = null;
+                    if (Guid.TryParse(change.JellyfinUserId, out var userGuid))
+                    {
+                        user = _userManager.GetUserById(userGuid);
+                    }
+
+                    if (user is null && !string.IsNullOrWhiteSpace(change.JellyfinUsername))
+                    {
+                        user = _userManager.GetUserByName(change.JellyfinUsername);
+                    }
+
+                    if (user is not null)
+                    {
+                        ApplyChange(user, change);
+                    }
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "[Jellyboxd] Failed applying change {Id}.", change.Id);
                 }
 
-                // Ack regardless: applied, or unresolvable (item not in library).
+                // Ack regardless: applied, or unresolvable (item/user not found).
                 acks.Acks.Add(new AckEntry { Id = change.Id, UpdatedAt = change.UpdatedAt });
             }
 
@@ -182,13 +191,16 @@ public sealed class OutboundPullService : IHostedService, IDisposable
 
         if (change.Rating.HasValue)
         {
+            // 0 = clear the rating (null), 1..10 = set it.
             data.Rating = change.Rating.Value == 0 ? (double?)null : change.Rating.Value;
         }
 
-        // Avoid the echo: our own UserDataSaved must not be pushed back.
+        // Avoid the echo: our own UserDataSaved must not be pushed back. The UI
+        // reads fresh because the Jellyboxd widget queries the Items LIST endpoint
+        // (not the cache-stale single-item GET) — see Web/clientScript.js.
         SuppressionCache.Remember(user.Id, item.Id.ToString("N"), data.Played, data.IsFavorite, data.Rating);
         _userDataManager.SaveUserData(user, item, data, UserDataSaveReason.UpdateUserRating, CancellationToken.None);
-        _logger.LogInformation("[Jellyboxd] Applied pulled change to '{Item}'.", item.Name);
+        _logger.LogInformation("[Jellyboxd] Applied pulled change to '{Item}' for '{User}'.", item.Name, user.Username);
     }
 
     private BaseItem? ResolveItem(PendingChange change)

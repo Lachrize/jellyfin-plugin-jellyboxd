@@ -100,6 +100,14 @@ public class PendingChange
     [JsonPropertyName("id")]
     public string Id { get; set; } = string.Empty;
 
+    /// <summary>The Jellyfin user this change must be applied to.</summary>
+    [JsonPropertyName("jellyfinUserId")]
+    public string JellyfinUserId { get; set; } = string.Empty;
+
+    /// <summary>Their Jellyfin display name (reliable key for GetUserByName).</summary>
+    [JsonPropertyName("jellyfinUsername")]
+    public string? JellyfinUsername { get; set; }
+
     [JsonPropertyName("updatedAt")]
     public string UpdatedAt { get; set; } = string.Empty;
 
