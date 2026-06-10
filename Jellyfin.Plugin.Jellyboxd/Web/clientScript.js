@@ -207,10 +207,22 @@
     applyBadgesForItem(itemId, rating);
   }
 
+  // Read a single item via the Items LIST endpoint, NOT api.getItem. The
+  // single-item GET (/Users/{id}/Items/{id}) serves a cached UserData that is
+  // NOT refreshed when the Jellyboxd plugin writes a rating from Jellyboxd, so
+  // it shows stale values; the list query reads fresh from the repository.
+  function fetchItemFresh(api, itemId, cb) {
+    api.ajax({
+      type: 'GET',
+      url: api.getUrl('Users/' + api.getCurrentUserId() + '/Items', { Ids: itemId, Fields: 'UserData', EnableImages: false }),
+      dataType: 'json'
+    }).then(function (res) { cb((res.Items || [])[0] || null); }, function () { cb(null); });
+  }
+
   function loadItem(itemId) {
     var api = getApiClient();
     if (!api || !widgetEl) return;
-    api.getItem(api.getCurrentUserId(), itemId).then(function (item) {
+    fetchItemFresh(api, itemId, function (item) {
       if (!item || RATABLE.indexOf(item.Type) < 0) {
         widgetEl.dataset.ratable = 'no';
         detachWidget();
@@ -220,18 +232,18 @@
       var r = Math.round((item.UserData && item.UserData.Rating) || 0);
       widgetEl._setActual(r);
       setItemRating(itemId, r);
-    }, function () {});
+    });
   }
 
   function reloadRating(itemId) {
     var api = getApiClient();
     if (!api || !widgetEl) return;
-    api.getItem(api.getCurrentUserId(), itemId).then(function (item) {
+    fetchItemFresh(api, itemId, function (item) {
       if (!item) return;
       var r = Math.round((item.UserData && item.UserData.Rating) || 0);
       widgetEl._setActual(r);
       setItemRating(itemId, r);
-    }, function () {});
+    });
   }
 
   function saveRating(value) {

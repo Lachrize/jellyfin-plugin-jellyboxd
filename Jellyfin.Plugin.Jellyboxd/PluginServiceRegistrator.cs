@@ -15,6 +15,8 @@ public class PluginServiceRegistrator : IPluginServiceRegistrator
         serviceCollection.AddHostedService<JellyboxdSyncService>();
         serviceCollection.AddHostedService<WebInjectionService>();
         serviceCollection.AddHostedService<OutboundPullService>();
-        serviceCollection.AddHostedService<JellyboxdLinkService>();
+        // JellyboxdLinkService was the single-user pairing loop; in the multi-user
+        // model the app uses one shared server key + jellyfinUserId routing, so it
+        // is no longer registered.
     }
 }
