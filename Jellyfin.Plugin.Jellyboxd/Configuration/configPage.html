@@ -16,41 +16,34 @@
                     <h2 class="sectionTitle">Jellyboxd Sync</h2>
                 </div>
                 <div class="fieldDescription" style="margin-bottom:1em;">
-                    <strong>Nouveau ?</strong> Renseigne juste l'<strong>URL Jellyboxd</strong> + ton
-                    <strong>identifiant Jellyfin</strong>, laisse le token <strong>vide</strong>, puis
-                    <strong>Save</strong>. Jellyboxd crée ton compte automatiquement : rafraîchis cette page après
-                    quelques secondes, le token se remplit tout seul et un lien « Ouvrir mon compte Jellyboxd »
-                    apparaît. Aucun 2ᵉ compte à créer.
+                    Renseigne l'<strong>URL Jellyboxd</strong> et colle la <strong>clé de synchronisation</strong>
+                    (Jellyboxd → <em>Paramètres → Synchronisation Jellyfin</em>), puis <strong>Save</strong>.
+                    Laisse « Jellyfin username » <strong>vide</strong> pour synchroniser <strong>tous</strong> les comptes.
+                    Notes, vu et favoris se synchronisent alors dans les deux sens, pour chaque utilisateur.
                 </div>
 
                 <div class="inputContainer">
                     <label class="inputLabel inputLabelUnfocused" for="JellyboxdUrl">Jellyboxd URL</label>
                     <input id="JellyboxdUrl" name="JellyboxdUrl" type="url" is="emby-input"
-                           placeholder="http://localhost:3000" />
-                    <div class="fieldDescription">Base URL of the Jellyboxd app, reachable from this server.</div>
+                           placeholder="http://192.168.1.50:3002" />
+                    <div class="fieldDescription">Adresse de l'app Jellyboxd, joignable depuis ce serveur Jellyfin.</div>
                 </div>
 
                 <div class="inputContainer">
-                    <label class="inputLabel inputLabelUnfocused" for="SyncKey">Jellyboxd sync token (laisser vide si nouveau)</label>
+                    <label class="inputLabel inputLabelUnfocused" for="SyncKey">Jellyboxd sync key (partagée)</label>
                     <input id="SyncKey" name="SyncKey" type="text" is="emby-input" autocomplete="off" />
-                    <div class="fieldDescription">Laisse vide pour créer ton compte automatiquement. Le plugin le remplira seul. (Avancé : si tu as déjà un compte Jellyboxd par e-mail, génère un token dans Paramètres → Jellyfin et colle-le ici pour relier ce compte.)</div>
+                    <div class="fieldDescription">Clé serveur partagée. Copie-la depuis Jellyboxd → Paramètres → Synchronisation Jellyfin (visible par l'admin). Requise : sans elle, rien ne se synchronise.</div>
                 </div>
 
                 <div class="inputContainer">
-                    <label class="inputLabel inputLabelUnfocused" for="JellyfinUsername">Your Jellyfin username</label>
+                    <label class="inputLabel inputLabelUnfocused" for="JellyfinUsername">Jellyfin username (optionnel)</label>
                     <input id="JellyfinUsername" name="JellyfinUsername" type="text" is="emby-input" autocomplete="off" />
-                    <div class="fieldDescription">The Jellyfin account to sync (only this user's activity is synced both ways).</div>
-                </div>
-
-                <div class="inputContainer" id="JellyboxdClaimContainer" style="display:none;">
-                    <label class="inputLabel inputLabelUnfocused">Open Jellyboxd</label>
-                    <div><a id="JellyboxdClaimLink" href="#" target="_blank" rel="noopener" style="color:#9b6fd6;font-weight:600;">Ouvrir mon compte Jellyboxd ➜</a></div>
-                    <div class="fieldDescription">Click to open and log into your linked Jellyboxd account — no password needed. (Appears after saving the URL + your Jellyfin username.)</div>
+                    <div class="fieldDescription">Laisse vide pour synchroniser tous les utilisateurs. Renseigne un nom uniquement si tu veux restreindre la synchro à ce seul compte Jellyfin.</div>
                 </div>
 
                 <label class="emby-checkbox-label">
                     <input id="MoviesOnly" name="MoviesOnly" type="checkbox" is="emby-checkbox" />
-                    <span>Movies only (otherwise: movies + series; seasons/episodes sync "watched")</span>
+                    <span>Films uniquement (sinon : films + séries ; saisons/épisodes synchronisent « vu »)</span>
                 </label>
 
                 <br />
@@ -74,11 +67,7 @@
                 document.querySelector('#JellyboxdUrl').value = config.JellyboxdUrl || '';
                 document.querySelector('#SyncKey').value = config.SyncKey || '';
                 document.querySelector('#JellyfinUsername').value = config.JellyfinUsername || '';
-                document.querySelector('#MoviesOnly').checked = config.MoviesOnly !== false;
-                var claim = config.ClaimUrl || '';
-                var claimBox = document.querySelector('#JellyboxdClaimContainer');
-                var claimLink = document.querySelector('#JellyboxdClaimLink');
-                if (claim) { claimLink.href = claim; claimBox.style.display = ''; } else { claimBox.style.display = 'none'; }
+                document.querySelector('#MoviesOnly').checked = config.MoviesOnly === true;
                 Dashboard.hideLoadingMsg();
             });
         });
@@ -99,18 +88,20 @@
         });
 
         document.querySelector('#JellyboxdTestButton').addEventListener('click', function () {
-            var url = document.querySelector('#JellyboxdUrl').value.replace(/\/+$/, '') + '/api/sync/event';
+            var url = document.querySelector('#JellyboxdUrl').value.replace(/\/+$/, '') + '/api/sync/pending';
             var key = document.querySelector('#SyncKey').value;
             var resultEl = document.querySelector('#JellyboxdTestResult');
             resultEl.textContent = 'Testing…';
             fetch(url, { method: 'GET', headers: { 'Authorization': 'Bearer ' + key } })
                 .then(function (r) {
                     resultEl.textContent = r.ok
-                        ? '✓ Connected to Jellyboxd.'
-                        : '✗ Jellyboxd responded ' + r.status + ' (check URL / sync key).';
+                        ? '✓ Connecté à Jellyboxd, clé valide.'
+                        : (r.status === 401
+                            ? '✗ Clé refusée (401) — vérifie la sync key.'
+                            : '✗ Jellyboxd a répondu ' + r.status + ' (vérifie l\'URL).');
                 })
                 .catch(function () {
-                    resultEl.textContent = '✗ Could not reach Jellyboxd at that URL.';
+                    resultEl.textContent = '✗ Jellyboxd injoignable à cette URL.';
                 });
         });
     </script>
