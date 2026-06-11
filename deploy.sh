@@ -16,7 +16,7 @@ DOTNET="${DOTNET:-/opt/homebrew/Cellar/dotnet@9/9.0.115/bin/dotnet}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 PROJ="$HERE/Jellyfin.Plugin.Jellyboxd"
 PLUGINS_DIR="${JELLYFIN_PLUGINS_DIR:-$HOME/Library/Application Support/jellyfin/plugins}"
-DEST="$PLUGINS_DIR/Jellyboxd Sync_1.0.1.0"
+DEST="$PLUGINS_DIR/Jellyboxd Sync_1.0.3.0"
 
 echo "==> Building (net9.0, Release)…"
 "$DOTNET" build -c Release "$PROJ/Jellyfin.Plugin.Jellyboxd.csproj" >/dev/null

@@ -41,9 +41,19 @@ public sealed class WebInjectionService : IHostedService
         {
             Inject();
         }
+        catch (UnauthorizedAccessException)
+        {
+            // Read-only web folder (common for containerized Jellyfin running as a
+            // non-root user). Not an error: WidgetInjectionStartupFilter injects the
+            // widget into the index.html response in memory instead.
+            _logger.LogInformation(
+                "[Jellyboxd] Web folder is read-only; the widget will be injected in memory instead (Docker-friendly).");
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "[Jellyboxd] Failed to inject the rating widget into the web client.");
+            _logger.LogWarning(
+                ex,
+                "[Jellyboxd] Could not write the widget into the web folder; falling back to in-memory injection.");
         }
 
         return Task.CompletedTask;

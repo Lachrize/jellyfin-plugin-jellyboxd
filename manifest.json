@@ -9,6 +9,14 @@
     "imageUrl": "",
     "versions": [
       {
+        "version": "1.0.3.0",
+        "changelog": "Rating widget now works on Docker / read-only web folders: it is injected into the web client in memory, so it loads on both native and containerized Jellyfin (no writable web folder required). File-based injection kept for native installs.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://github.com/Lachrize/jellyfin-plugin-jellyboxd/raw/main/dist/jellyboxd_1.0.3.0.zip",
+        "checksum": "d187818d9ea442a479f9e562477548a1",
+        "timestamp": "2026-06-11T12:13:00.0000000Z"
+      },
+      {
         "version": "1.0.2.0",
         "changelog": "Multi-user two-way sync: one shared key, every Jellyfin user syncs to their own Jellyboxd account (leave username empty). Faster pull (3s), fresh rating reads in the widget.",
         "targetAbi": "10.11.0.0",

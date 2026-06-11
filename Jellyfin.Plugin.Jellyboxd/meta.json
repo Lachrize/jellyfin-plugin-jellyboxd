@@ -1,6 +1,6 @@
 {
   "category": "Sync",
-  "changelog": "Multi-user two-way sync (one shared key, routed by Jellyfin user id). Leave username empty to sync all users. Faster pull (3s) and fresh rating reads.",
+  "changelog": "Rating widget now works on Docker / read-only web folders: injected into the web client in memory (no disk write), file-based injection kept for native. Plus multi-user two-way sync (one shared key, routed by Jellyfin user id; leave username empty to sync all users).",
   "description": "Two-way sync of watched, rating and favourite (movies & series) with the Jellyboxd app, for every user.",
   "guid": "d986b486-5085-4742-88bb-3641b0150bad",
   "name": "Jellyboxd Sync",
@@ -8,7 +8,7 @@
   "owner": "Lachrize",
   "targetAbi": "10.11.0.0",
   "framework": "net9.0",
-  "version": "1.0.2.0",
+  "version": "1.0.3.0",
   "status": "Active",
   "autoUpdate": false
 }
